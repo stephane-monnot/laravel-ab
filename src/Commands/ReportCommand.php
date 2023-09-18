@@ -61,7 +61,9 @@ class ReportCommand extends Command
         return Experiment::all()->map(function ($item) {
             $return = [$item->name, $item->visitors];
 
-            $goalConversations = $item->goals->pluck('hit')->map(function ($hit) use ($item) {
+            $goalConversations = $item->goals->sortBy(function($model) {
+                return array_search($model->name, config('ab-testing.goals'));
+            })->pluck('hit')->map(function ($hit) use ($item) {
                 $item->visitors = $item->visitors ?: 1; // prevent division by zero exception
 
                 return $hit.' ('.number_format($hit / $item->visitors * 100).'%)';
